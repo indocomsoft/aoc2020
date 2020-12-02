@@ -11,7 +11,7 @@ input([X|Xs]) :-
   input(Xs).
 
 count(_, [], 0).
-count(X, [X|Xs], Ans) :- count(X, Xs, NewAns), Ans is NewAns + 1, !.
+count(X, [X|Xs], Ans) :- count(X, Xs, NewAns), Ans is NewAns + 1.
 count(X, [_|Xs], Ans) :- count(X, Xs, Ans).
 
 part1([], 0).
@@ -23,7 +23,6 @@ part1([[Lo, Hi, Letter, Password]|Xs], Ans) :-
 incrementIfInRange(Lo, Hi, X, Count, NewCount) :-
   X >= Lo,
   X =< Hi,
-  !,
   NewCount is Count + 1.
 incrementIfInRange(_, _, _, Count, Count).
 
