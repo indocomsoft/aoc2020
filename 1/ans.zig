@@ -1,14 +1,18 @@
 const std = @import("std");
 const stdin = std.io.getStdIn().reader();
 const stdout = std.io.getStdOut().writer();
-const allocator = std.heap.c_allocator;
 
-fn readInput() !std.ArrayList(i32) {
+const MAX_INPUT_SIZE = 1024;
+
+fn readInput(allocator: *std.mem.Allocator) !std.ArrayList(i32) {
+    var buf: [MAX_INPUT_SIZE]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&buf);
+    const thisAllocator = &fba.allocator;
+
     var list = std.ArrayList(i32).init(allocator);
     while (true) {
-        if (stdin.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
+        if (stdin.readUntilDelimiterAlloc(thisAllocator, '\n', MAX_INPUT_SIZE)) |line| {
             const num = try std.fmt.parseInt(i32, line, 10);
-            allocator.free(line);
             try list.append(num);
         } else |err| switch (err) {
             error.EndOfStream => return list,
@@ -24,7 +28,7 @@ fn part1(input: std.ArrayList(i32)) !void {
                 continue;
             }
             if (a + b == 2020) {
-                stdout.print("{}\n", .{a * b}) catch unreachable;
+                try stdout.print("{}\n", .{a * b});
                 return;
             }
         }
@@ -42,7 +46,7 @@ fn part2(input: std.ArrayList(i32)) !void {
                     continue;
                 }
                 if (a + b + c == 2020) {
-                    stdout.print("{}\n", .{a * b * c}) catch unreachable;
+                    try stdout.print("{}\n", .{a * b * c});
                     return;
                 }
             }
@@ -50,10 +54,14 @@ fn part2(input: std.ArrayList(i32)) !void {
     }
 }
 
-pub fn main() void {
-    const input = readInput() catch unreachable;
+pub fn main() !void {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = &arena.allocator;
+
+    const input = try readInput(allocator);
     // Part 1
-    part1(input) catch unreachable;
+    try part1(input);
     // Part 2
-    part2(input) catch unreachable;
+    try part2(input);
 }

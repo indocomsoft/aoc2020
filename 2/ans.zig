@@ -1,14 +1,17 @@
 const std = @import("std");
 const stdin = std.io.getStdIn().reader();
 const stdout = std.io.getStdOut().writer();
-const allocator = std.heap.c_allocator;
 
 const Data = struct { lo: u32, hi: u32, letter: u8, password: []u8 };
 
-fn readInput() !std.ArrayList(Data) {
+fn readInput(allocator: *std.mem.Allocator) !std.ArrayList(Data) {
+    var buf: [MAX_INPUT_SIZE]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&buf);
+    const thisAllocator = &fba.allocator;
+
     var list = std.ArrayList(Data).init(allocator);
     while (true) {
-        if (stdin.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
+        if (stdin.readUntilDelimiterAlloc(thisAllocator, '\n', 1024)) |line| {
             var iterator = std.mem.split(line, " ");
             const rangeSlice = iterator.next().?;
             var rangeIterator = std.mem.split(rangeSlice, "-");
@@ -23,8 +26,6 @@ fn readInput() !std.ArrayList(Data) {
             const hi = try std.fmt.parseUnsigned(u32, hiSlice, 10);
 
             try list.append(Data{ .lo = lo, .hi = hi, .letter = letter, .password = password });
-
-            allocator.free(line);
         } else |err| switch (err) {
             error.EndOfStream => return list,
             else => return err,
@@ -59,7 +60,11 @@ fn part2(input: std.ArrayList(Data)) !void {
 }
 
 pub fn main() !void {
-    const input = try readInput();
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = &arena.allocator;
+
+    const input = try readInput(allocator);
     try part1(input);
     try part2(input);
 }

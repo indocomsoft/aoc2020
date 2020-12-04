@@ -1,9 +1,8 @@
 const std = @import("std");
 const stdin = std.io.getStdIn().reader();
 const stdout = std.io.getStdOut().writer();
-const allocator = std.heap.c_allocator;
 
-fn readInput() !std.ArrayList([]u8) {
+fn readInput(allocator: *std.mem.Allocator) !std.ArrayList([]u8) {
     var list = std.ArrayList([]u8).init(allocator);
     while (true) {
         if (stdin.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
@@ -37,6 +36,10 @@ fn part1(input: std.ArrayList([]u8)) !void {
 }
 
 fn part2(input: std.ArrayList([]u8)) !void {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = &arena.allocator;
+
     const slope11 = try std.math.big.int.Managed.initSet(allocator, try check(input, 1, 1));
     const slope13 = try std.math.big.int.Managed.initSet(allocator, try check(input, 1, 3));
     const slope15 = try std.math.big.int.Managed.initSet(allocator, try check(input, 1, 5));
@@ -51,7 +54,11 @@ fn part2(input: std.ArrayList([]u8)) !void {
 }
 
 pub fn main() !void {
-    const input = try readInput();
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = &arena.allocator;
+
+    const input = try readInput(allocator);
     try part1(input);
     try part2(input);
 }
