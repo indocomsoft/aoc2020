@@ -6,19 +6,21 @@ input_numbers([X|Xs]) :-
   number_codes(X, Line),
   input_numbers(Xs).
 
+powerset([], []).
+powerset([_|Xs], Y) :- powerset(Xs, Y).
+powerset([X|Xs], [X|Ys]) :- powerset(Xs, Ys).
+
 part1(Xs, Ans) :-
+  [A, B] = Subset,
   2020 #= A + B,
-  member(A, Xs),
-  member(B, Xs),
-  all_distinct([A, B]),
+  powerset(Xs, Subset),
   Ans #= A * B.
 
+
 part2(Xs, Ans) :-
+  [A, B, C] = Subset,
   2020 #= A + B + C,
-  member(A, Xs),
-  member(B, Xs),
-  member(C, Xs),
-  all_distinct([A, B, C]),
+  powerset(Xs, Subset),
   Ans #= A * B * C.
 
 main :-
