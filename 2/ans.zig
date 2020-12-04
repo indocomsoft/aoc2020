@@ -4,32 +4,29 @@ const stdout = std.io.getStdOut().writer();
 
 const Data = struct { lo: u32, hi: u32, letter: u8, password: []u8 };
 
+const MAX_INPUT_SIZE = 1024;
+
 fn readInput(allocator: *std.mem.Allocator) !std.ArrayList(Data) {
     var buf: [MAX_INPUT_SIZE]u8 = undefined;
-    var fba = std.heap.FixedBufferAllocator.init(&buf);
-    const thisAllocator = &fba.allocator;
 
     var list = std.ArrayList(Data).init(allocator);
     while (true) {
-        if (stdin.readUntilDelimiterAlloc(thisAllocator, '\n', 1024)) |line| {
-            var iterator = std.mem.split(line, " ");
-            const rangeSlice = iterator.next().?;
-            var rangeIterator = std.mem.split(rangeSlice, "-");
-            const loSlice = rangeIterator.next().?;
-            const hiSlice = rangeIterator.next().?;
-            const letter = iterator.next().?[0];
-            const passwordSlice = iterator.next().?;
+        const line = (try stdin.readUntilDelimiterOrEof(&buf, '\n')) orelse return list;
+        var iterator = std.mem.split(line, " ");
+        const rangeSlice = iterator.next().?;
+        var rangeIterator = std.mem.split(rangeSlice, "-");
+        const loSlice = rangeIterator.next().?;
+        const hiSlice = rangeIterator.next().?;
+        const letter = iterator.next().?[0];
+        const passwordSlice = iterator.next().?;
 
-            const password = try allocator.alloc(u8, passwordSlice.len);
-            std.mem.copy(u8, password, passwordSlice);
-            const lo = try std.fmt.parseUnsigned(u32, loSlice, 10);
-            const hi = try std.fmt.parseUnsigned(u32, hiSlice, 10);
+        const password = try allocator.alloc(u8, passwordSlice.len);
+        std.mem.copy(u8, password, passwordSlice);
 
-            try list.append(Data{ .lo = lo, .hi = hi, .letter = letter, .password = password });
-        } else |err| switch (err) {
-            error.EndOfStream => return list,
-            else => return err,
-        }
+        const lo = try std.fmt.parseUnsigned(u32, loSlice, 10);
+        const hi = try std.fmt.parseUnsigned(u32, hiSlice, 10);
+
+        try list.append(Data{ .lo = lo, .hi = hi, .letter = letter, .password = password });
     }
 }
 

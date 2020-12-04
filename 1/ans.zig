@@ -6,18 +6,11 @@ const MAX_INPUT_SIZE = 1024;
 
 fn readInput(allocator: *std.mem.Allocator) !std.ArrayList(i32) {
     var buf: [MAX_INPUT_SIZE]u8 = undefined;
-    var fba = std.heap.FixedBufferAllocator.init(&buf);
-    const thisAllocator = &fba.allocator;
-
     var list = std.ArrayList(i32).init(allocator);
     while (true) {
-        if (stdin.readUntilDelimiterAlloc(thisAllocator, '\n', MAX_INPUT_SIZE)) |line| {
-            const num = try std.fmt.parseInt(i32, line, 10);
-            try list.append(num);
-        } else |err| switch (err) {
-            error.EndOfStream => return list,
-            else => return err,
-        }
+        const line = (try stdin.readUntilDelimiterOrEof(&buf, '\n')) orelse return list;
+        const num = try std.fmt.parseInt(i32, line, 10);
+        try list.append(num);
     }
 }
 
