@@ -1,3 +1,5 @@
+:- use_module(library(clpfd)).
+
 input(Xs) :-
   read_stream_to_codes(current_input, LineCodes),
   string_codes(Line, LineCodes),
@@ -36,26 +38,23 @@ validate_fields_existence(X) :-
   intersection(Keys, Required, Intersection),
   length(Required, RequiredLength),
   length(Intersection, IntersectionLength),
-  RequiredLength =:= IntersectionLength.
+  RequiredLength = IntersectionLength.
 
 validate_fields_content([]).
 validate_fields_content([["byr", BirthYearString]|Xs]) :-
-  string_length(BirthYearString, 4),
+  %string_length(BirthYearString, 4),
   number_string(BirthYear, BirthYearString),
-  BirthYear >= 1920,
-  BirthYear =< 2002,
+  BirthYear in 1920..2002,
   validate_fields_content(Xs).
 validate_fields_content([["iyr", IssueYearString]|Xs]) :-
-  string_length(IssueYearString, 4),
+  %string_length(IssueYearString, 4),
   number_string(IssueYear, IssueYearString),
-  IssueYear >= 2010,
-  IssueYear =< 2020,
+  IssueYear in 2010..2020,
   validate_fields_content(Xs).
 validate_fields_content([["eyr", ExpirationYearString]|Xs]) :-
-  string_length(ExpirationYearString, 4),
+  %string_length(ExpirationYearString, 4),
   number_string(ExpirationYear, ExpirationYearString),
-  ExpirationYear >= 2020,
-  ExpirationYear =< 2030,
+  ExpirationYear in 2020..2030,
   validate_fields_content(Xs).
 validate_fields_content([["hgt", HeightString]|Xs]) :-
   sub_string(HeightString, _, 2, 0, Unit),
@@ -78,15 +77,11 @@ validate_fields_content([["pid", PassportId]|Xs]) :-
   validate_fields_content(Xs).
 validate_fields_content([["cid", _]|Xs]) :- validate_fields_content(Xs).
 
-validate_height(Height, "cm") :- Height >= 150, Height =< 193.
-validate_height(Height, "in") :- Height >= 59, Height =< 76.
+validate_height(Height, "cm") :- Height in 150..193.
+validate_height(Height, "in") :- Height in 59..76.
 
 validate_hair([]).
-validate_hair([X|Xs]) :-
-  ((X >= 48, X =< 57); (X >= 97, X =< 102)),
-  validate_hair(Xs).
-
-
+validate_hair([X|Xs]) :- X in 48..57\/97..102, validate_hair(Xs).
 
 main :-
   input(Xs),
