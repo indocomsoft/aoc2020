@@ -65,6 +65,7 @@ validate_fields_content([["hgt", HeightString]|Xs]) :-
   validate_fields_content(Xs).
 validate_fields_content([["hcl", HairColorString]|Xs]) :-
   string_concat("#", Rest, HairColorString),
+  string_length(Rest, 6),
   string_codes(Rest, RestCodes),
   validate_hair(RestCodes),
   validate_fields_content(Xs).
