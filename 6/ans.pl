@@ -11,29 +11,18 @@ split_by_empty(Input, [Ans|Rest]) :-
   append([Ans, [""], NewInput], Input),
   split_by_empty(NewInput, Rest).
 
-process_raw_group_union([X], Ans) :- string_codes(X, Ans).
-process_raw_group_union([X|Xs], Ans) :-
-  process_raw_group_union(Xs, NewAns),
+process_raw_group([X], Ans, _) :- string_codes(X, Ans).
+process_raw_group([X|Xs], Ans, Operator) :-
+  process_raw_group(Xs, NewAns, Operator),
   string_codes(X, XCode),
   list_to_set(XCode, XCodeSet),
-  union(NewAns, XCodeSet, Ans).
+  call(Operator, NewAns, XCodeSet, Ans).
 
-process_raw_groups_union([], []).
-process_raw_groups_union([RawGroup|RawGroups], [Group|Groups]) :-
-  process_raw_group_union(RawGroup, Group),
-  process_raw_groups_union(RawGroups, Groups).
-
-process_raw_group_intersection([X], Ans) :- string_codes(X, Ans).
-process_raw_group_intersection([X|Xs], Ans) :-
-  process_raw_group_intersection(Xs, NewAns),
-  string_codes(X, XCode),
-  list_to_set(XCode, XCodeSet),
-  intersection(NewAns, XCodeSet, Ans).
-
-process_raw_groups_intersection([], []).
-process_raw_groups_intersection([RawGroup|RawGroups], [Group|Groups]) :-
-  process_raw_group_intersection(RawGroup, Group),
-  process_raw_groups_intersection(RawGroups, Groups).
+process_raw_groups([], [], _).
+process_raw_groups([RawGroup|RawGroups], [Group|Groups], Operator) :-
+  member(Operator, [union, intersection]),
+  process_raw_group(RawGroup, Group, Operator),
+  process_raw_groups(RawGroups, Groups, Operator).
 
 count_sum_length([], 0).
 count_sum_length([X|Xs], Ans) :-
@@ -42,11 +31,11 @@ count_sum_length([X|Xs], Ans) :-
   Ans #= NewAns + XLength.
 
 part1(Xs, Ans) :-
-  process_raw_groups_union(Xs, Groups),
+  process_raw_groups(Xs, Groups, union),
   count_sum_length(Groups, Ans).
 
 part2(Xs, Ans) :-
-  process_raw_groups_intersection(Xs, Groups),
+  process_raw_groups(Xs, Groups, intersection),
   count_sum_length(Groups, Ans).
 
 main :-
