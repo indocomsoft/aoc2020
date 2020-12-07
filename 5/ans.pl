@@ -16,16 +16,8 @@ convert([H|T], Dec) :-
   convert(T, NextDec),
   Dec is NextDec * 2 + HBin.
 
-seat_id(X, Ans) :-
-  length(RowX, 7),
-  length(ColX, 3),
-  append(RowX, ColX, X),
-  to_decimal(RowX, Row),
-  to_decimal(ColX, Col),
-  Ans is Row * 8 + Col.
-
 seat_ids([], []).
-seat_ids([X|Xs], [Ans|Rest]) :- seat_id(X, Ans), seat_ids(Xs, Rest).
+seat_ids([X|Xs], [Ans|Rest]) :- to_decimal(X, Ans), seat_ids(Xs, Rest).
 
 part1(SeatIds, Ans) :- max_list(SeatIds, Ans).
 
