@@ -14,11 +14,11 @@ part1_helper([], _, 0, 1).
 part1_helper([X|Xs], Current, NumOneJolt, NumThreeJolt) :-
   Diff #= X - Current,
   part1_helper(Xs, X, NewNumOneJolt, NewNumThreeJolt),
-  (Diff =:= 1 ->
+  (Diff #= 1 ->
     NumOneJolt is NewNumOneJolt + 1
   ; NumOneJolt is NewNumOneJolt
   ),
-  (Diff =:= 3 ->
+  (Diff #= 3 ->
     NumThreeJolt is NewNumThreeJolt + 1
   ; NumThreeJolt is NewNumThreeJolt
   ).
