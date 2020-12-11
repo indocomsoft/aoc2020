@@ -1,5 +1,3 @@
-%:- use_module(library(clpfd)).
-
 input([]) :- at_end_of_stream(current_input).
 input([X|Xs]) :-
   read_line_to_codes(current_input, X),
@@ -213,7 +211,6 @@ part2(Xs, Ans) :-
   retractall(layout(_, _, _)),
   retractall(newlayout(_, _, _)),
   def_layout(Xs),
-  findall(Y, layout(_, _, Y), Ys),
   part2(NumRows, NumCols, Ans).
 
 part2(NumRows, NumCols, Ans) :-
