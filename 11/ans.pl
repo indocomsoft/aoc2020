@@ -1,3 +1,5 @@
+:- dynamic (layout/3, newlayout/3) as (private).
+
 input([]) :- at_end_of_stream(current_input).
 input([X|Xs]) :-
   read_line_to_codes(current_input, X),
@@ -228,7 +230,6 @@ part2(NumRows, NumCols, Ans) :-
 
 main :-
   input(Xs),
-  part1(Xs, Ans1),
+  concurrent(2, [part1(Xs, Ans1), part2(Xs, Ans2)], []),
   writeln(Ans1),
-  part2(Xs, Ans2),
   writeln(Ans2).
