@@ -1,4 +1,4 @@
-:- use_module(library(clpfd)).
+%:- use_module(library(clpfd)).
 
 input([]) :- at_end_of_stream(current_input).
 input([X|Xs]) :-
@@ -12,8 +12,8 @@ powerset([X|Xs], [X|Ys]) :- powerset(Xs, Ys).
 
 valid(X, Preamble) :-
   powerset(Preamble, [A, B]),
-  X #= A + B,
-  all_distinct([A, B]).
+  X is A + B,
+  A \= B.
 
 first_invalid(Xs, PreambleLength, Ans) :-
   length(Preamble, PreambleLength),
@@ -27,13 +27,13 @@ first_invalid(Xs, PreambleLength, Ans) :-
 part1(Xs, Ans) :- first_invalid(Xs, 25, Ans).
 
 part2(X, Xs, Ans) :-
-  SetLength #>= 2,
   length(Set, SetLength),
+  SetLength >= 2,
   append([_, Set, _], Xs),
-  sum(Set, #=, X),
+  sum_list(Set, X),
   min_list(Set, Min),
   max_list(Set, Max),
-  Ans #= Min + Max.
+  Ans is Min + Max.
 
 main :-
   input(Xs),
