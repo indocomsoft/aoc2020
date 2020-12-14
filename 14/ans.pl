@@ -70,7 +70,7 @@ do_part1([[mem, Address, Value]|Xs], Mask, Ans) :-
 apply_addr_mask(Addr, Mask, Ans) :-
   dec_bin_length(Addr, AddrBin, 36),
   findall(X, do_apply_addr_mask(AddrBin, Mask, 36, X), Xs),
-  maplist(dec_bin, Ans, Xs).
+  concurrent_maplist(dec_bin, Ans, Xs).
 
 do_apply_addr_mask([], [], 0, []).
 do_apply_addr_mask([B|Bs], [[Counter, Mask]|Masks], Counter, [Ans|Rest]) :-
