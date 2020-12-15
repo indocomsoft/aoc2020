@@ -51,3 +51,14 @@ pub fn main() !void {
     const ans2 = try run_game(input, 30000000);
     try stdout.print("{}\n", .{ans2});
 }
+
+const expect = @import("std").testing.expect;
+test "test input" {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = &arena.allocator;
+
+    var data = [_]u64{ 0, 3, 6 };
+    const input = ArrayList(u64).fromOwnedSlice(allocator, data[0..data.len]);
+    expect((try run_game(input, 2020)) == 436);
+}
